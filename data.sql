@@ -82,9 +82,6 @@ CREATE TABLE round_strokes (
     FOREIGN KEY (golfer_id) REFERENCES golfers(golfer_id)
 );
 
-CREATE TABLE tournaments (
-    tournament_id SERIAL PRIMARY KEY
-);
 
 CREATE TABLE leaderboards (
     leaderboard_id SERIAL PRIMARY KEY,
@@ -94,7 +91,7 @@ CREATE TABLE leaderboards (
     position INT
 );
 
-CREATE TABLE Tournament (
+CREATE TABLE tournaments (
     tournament_id SERIAL PRIMARY KEY,
     country TEXT,
     course TEXT,
@@ -109,7 +106,7 @@ CREATE TABLE Tournament (
     results_id INT REFERENCES Results(results_id)
 );
 
-CREATE TABLE Results (
+CREATE TABLE results (
     results_id SERIAL PRIMARY KEY,
     leaderboard JSONB,
     tournament JSONB
