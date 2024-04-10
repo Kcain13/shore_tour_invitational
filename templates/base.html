@@ -1,0 +1,34 @@
+<!-- This will be the base template that other templates will extend from. 
+    It will contain the common structure shared across multiple pages, such as 
+    HTML structure, head section, navigation bar, etc -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Your Website{% endblock %}</title>
+    <!-- Add any additional meta tags, CSS, or JavaScript here -->
+</head>
+
+<body>
+    <nav>
+        <!-- Navigation bar content goes here -->
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/login">Login</a></li>
+            <li><a href="/register">Register</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        {% block content %}
+        <!-- Content of individual pages will be inserted here -->
+        {% endblock %}
+    </main>
+
+    <!-- Add any additional scripts here -->
+</body>
+
+</html>

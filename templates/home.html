@@ -1,0 +1,11 @@
+<!-- This will be the template for the home page
+    accessible to logged-in users. -->
+
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h1>Welcome, {{ current_user.username }}!</h1>
+<!-- Add any additional content for the home page here -->
+{% endblock %}
