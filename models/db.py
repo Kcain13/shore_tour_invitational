@@ -1,73 +1,115 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from flask_migrate import Migrate  # Import Flask-Migrate
-from dotenv import load_dotenv
-import os
 
-load_dotenv()  # Load environment variables from .env file
+db = SQLAlchemy()
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
-migrate = Migrate(app, db)  # Initialize Flask-Migrate with the app and db instance
+class Golfer(db.Model):
+    golfer_id = db.Column(db.Integer, primary_key=True)
+    golfer_name = db.Column(db.Text)
+    username = db.Column(db.Text, unique=True, nullable=False)
+    password = db.Column(db.Text, nullable=False)
+    email = db.Column(db.Text, unique=True, nullable=False)
+    GHIN = db.Column(db.Text)
+    handicap = db.Column(db.Float)
 
-# Import models and forms
-from models import Golfer  # Assuming you have a Golfer model defined
-from forms import RegistrationForm, LoginForm  # Assuming you have forms defined
 
-@login_manager.user_loader
-def load_user(golfer_id):
-    return Golfer.query.get(int(golfer_id))
+class Club(db.Model):
+    club_id = db.Column(db.Integer, primary_key=True)
+    club_name = db.Column(db.Text)
+    city = db.Column(db.Text)
+    state = db.Column(db.Text)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegistrationForm(request.form)
-    if request.method == 'POST' and form.validate():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        golfer = Golfer(golfer_name=form.golfer_name.data,
-                        username=form.username.data,
-                        password=hashed_password,
-                        email=form.email.data,
-                        GHIN=form.GHIN.data,
-                        handicap=form.handicap.data)
-        db.session.add(golfer)
-        db.session.commit()
-        flash('Your account has been created! You can now log in', 'success')
-        return redirect(url_for('login'))
-    return render_template('register.html', form=form)
+class Course(db.Model):
+    course_id = db.Column(db.Integer, primary_key=True)
+    course_name = db.Column(db.Text)
+    club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'))
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    form = LoginForm(request.form)
-    if request.method == 'POST' and form.validate():
-        golfer = Golfer.query.filter_by(username=form.username.data).first()
-        if golfer and bcrypt.check_password_hash(golfer.password, form.password.data):
-            login_user(golfer)
-            next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('index'))
-        else:
-            flash('Login Unsuccessful. Please check username and password', 'danger')
-    return render_template('login.html', form=form)
 
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
+class CourseHole(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.course_id'))
+    number = db.Column(db.Integer)
+    par = db.Column(db.Integer)
+    handicap = db.Column(db.Integer)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+class Tee(db.Model):
+    tee_id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.course_id'))
+    tee_name = db.Column(db.Text)
+    slope = db.Column(db.Integer)
+    rating = db.Column(db.Float)
+    total_yards = db.Column(db.Integer)
+
+
+class TeeHole(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tee_id = db.Column(db.Integer, db.ForeignKey('tee.tee_id'))
+    hole_number = db.Column(db.Integer)
+    yards = db.Column(db.Integer)
+
+
+class GolferRound(db.Model):
+    golfer_round_id = db.Column(db.Integer, primary_key=True)
+    golfer_id = db.Column(db.Integer, db.ForeignKey('golfer.golfer_id'))
+    round_id = db.Column(db.Integer)
+    total_strokes = db.Column(db.Integer)
+    total_holes = db.Column(db.Integer)
+
+
+class Round(db.Model):
+    round_id = db.Column(db.Integer, primary_key=True)
+    club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'))
+    date_of_round = db.Column(db.Date)
+
+
+class RoundCourse(db.Model):
+    round_course_id = db.Column(db.Integer, primary_key=True)
+    round_id = db.Column(db.Integer, db.ForeignKey('round.round_id'))
+    course_id = db.Column(db.Integer, db.ForeignKey('course.course_id'))
+    sequence_number = db.Column(db.Integer)
+    tee_id = db.Column(db.Integer, db.ForeignKey('tee.tee_id'))
+
+
+class RoundStroke(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    golfer_id = db.Column(db.Integer, db.ForeignKey('golfer.golfer_id'))
+    round_course_id = db.Column(
+        db.Integer, db.ForeignKey('round_course.round_course_id'))
+    hole_number = db.Column(db.Integer)
+    strokes = db.Column(db.Integer)
+    fairway_hit = db.Column(db.Boolean)
+    green_in_reg = db.Column(db.Boolean)
+    number_of_putts = db.Column(db.Integer)
+    bunker_shot = db.Column(db.Boolean)
+
+
+class Leaderboard(db.Model):
+    leaderboard_id = db.Column(db.Integer, primary_key=True)
+    tournament_id = db.Column(
+        db.Integer, db.ForeignKey('tournament.tournament_id'))
+    golfer_id = db.Column(db.Integer, db.ForeignKey('golfer.golfer_id'))
+    holes_played = db.Column(db.Integer)
+    position = db.Column(db.Integer)
+
+
+class Tournament(db.Model):
+    tournament_id = db.Column(db.Integer, primary_key=True)
+    country = db.Column(db.Text)
+    course = db.Column(db.Text)
+    course_par = db.Column(db.Text)
+    end_date = db.Column(db.Text)
+    live_details = db.Column(db.JSON)
+    name = db.Column(db.Text)
+    start_date = db.Column(db.Text)
+    timezone = db.Column(db.Text)
+    tour_id = db.Column(db.Text)
+    type = db.Column(db.Text)
+    results_id = db.Column(db.Integer, db.ForeignKey('results.results_id'))
+
+
+class Result(db.Model):
+    results_id = db.Column(db.Integer, primary_key=True)
+    leaderboard = db.Column(db.JSON)
+    tournament = db.Column(db.JSON)
