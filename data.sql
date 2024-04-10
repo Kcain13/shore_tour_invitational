@@ -6,6 +6,7 @@ CREATE TABLE golfers (
     golfer_id SERIAL PRIMARY KEY,
     golfer_name TEXT,
     username TEXT,
+    password TEXT,
     email TEXT,
     GHIN TEXT,
     handicap FLOAT
