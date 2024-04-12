@@ -56,7 +56,7 @@ class CourseHole(db.Model):
 
 class Tee(db.Model):
     '''one tee can have multiple holes'''
-    __tablename__ = ''
+    __tablename__ = 'tees'
 
     tee_id = db.Column(db.Integer, primary_key=True)
     course_id = db.Column(db.Integer, db.ForeignKey('course.course_id'))
@@ -94,6 +94,17 @@ class Round(db.Model):
     round_id = db.Column(db.Integer, primary_key=True)
     club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'))
     date_of_round = db.Column(db.Date)
+    golfer_id = db.Column(db.Integer, db.ForeignKey('golfer.golfer_id'))
+    golfer = db.relationship('Golfer', backref='rounds')
+
+    @classmethod
+    def begin_round(cls, golfer_id, club_id, date_of_round):
+        """Create a new round and save it to the database."""
+        round = Round(golfer_id=golfer_id, club_id=club_id,
+                      date_of_round=date_of_round)
+        db.session.add(round)
+        db.session.commit()
+        return round
 
 
 class RoundCourse(db.Model):
