@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Tournament Play Results{% endblock %}
+
+{% block content %}
+<h1>Tournament Play Results</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Position</th>
+            <th>Golfer</th>
+            <th>Score</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in leaderboard_entries %}
+        <tr>
+            <td>{{ entry.position }}</td>
+            <td>{{ entry.golfer_name }}</td>
+            <td>{{ entry.score }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

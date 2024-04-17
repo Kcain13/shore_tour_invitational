@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golfer Round</title>
+</head>
+
+<body>
+    <h1>Round in Progress</h1>
+    <h2>Current Hole: {{ current_hole_number }}</h2>
+    <p>Par: {{ current_hole_par }}</p>
+    <p>Yards: {{ current_hole_yards }}</p>
+
+    <h3>Enter Your Performance</h3>
+    <form action="/record_performance/{{ round_id }}/{{ current_hole_number }}" method="POST">
+
+        <label for="strokes">Strokes:</label>
+        <input type="number" name="strokes" id="strokes" required>
+
+        <label for="fairway_hit">Fairway Hit:</label>
+        <input type="checkbox" name="fairway_hit" id="fairway_hit">
+
+        <label for="green_in_reg">Green in Regulation:</label>
+        <input type="checkbox" name="green_in_reg" id="green_in_reg">
+
+        <label for="number_of_putts">Number of Putts:</label>
+        <input type="number" name="number_of_putts" id="number_of_putts" required>
+
+        <label for="bunker_shot">Bunker Shot:</label>
+        <input type="checkbox" name="bunker_shot" id="bunker_shot">
+
+        <button type="submit">Submit Performance</button>
+    </form>
+
+    <h3>Quick View</h3>
+    <ul>
+        <li><a href="/view_front_9/{{ round_id }}">View Front 9</a></li>
+        <li><a href="/view_back_9/{{ round_id }}">View Back 9</a></li>
+        <li>Individual Holes:
+            <ul>
+                {% for hole_number in range(1, 19) %}
+                <li><a href="/view_performance/{{ round_id }}/{{ hole_number }}">Hole {{ hole_number }}</a></li>
+                {% endfor %}
+            </ul>
+        </li>
+    </ul>
+
+    <form action="/finish_round/{{ round_id }}" method="POST">
+        <button type="submit">Finish Round</button>
+    </form>
+</body>
+
+</html>

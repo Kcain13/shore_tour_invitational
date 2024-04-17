@@ -1,0 +1,10 @@
+<!-- notifications.html -->
+{% for notification in notifications %}
+<div class="notification">
+    <p>{{ notification.message }}</p>
+    <a href="{{ url_for('match_play', match_id=notification.match_id) }}">Join Match</a>
+    <form action="{{ url_for('mark_notification_as_read', notification_id=notification.id) }}" method="POST">
+        <button type="submit">Mark as Read</button>
+    </form>
+</div>
+{% endfor %}

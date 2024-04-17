@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selected Course</title>
+</head>
+
+<body>
+    <h1>{{ course.course_name }}</h1>
+    <p>Club: {{ course.club_name }}</p>
+    <p>Location: {{ course.city }}, {{ course.state }}</p>
+
+    <h2>Teeboxes</h2>
+    <ul>
+        {% for teebox in course.teeboxes %}
+        <li>{{ teebox.tee_name }} - Rating: {{ teebox.rating }}, Slope: {{ teebox.slope }}, Total Yards: {{
+            teebox.total_yards }}</li>
+        {% endfor %}
+    </ul>
+
+    <p>Total Par: {{ total_par }}</p>
+
+    <form action="/start_round/{{ course.course_id }}" method="POST">
+        <label for="match_type">Match Type:</label>
+        <select name="match_type" id="match_type">
+            <option value="solo">Solo Round</option>
+            <option value="stroke_play">Stroke Play</option>
+            <option value="match_play">Match Play</option>
+        </select>
+
+        <label for="number_of_holes">Number of Holes:</label>
+        <select name="number_of_holes" id="number_of_holes">
+            <option value="9">9 Holes</option>
+            <option value="18">18 Holes</option>
+        </select>
+
+        <label for="teebox">Select Teebox:</label>
+        <select name="teebox" id="teebox">
+            {% for teebox in course.teeboxes %}
+            <option value="{{ teebox.tee_id }}">{{ teebox.tee_name }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Start Round</button>
+    </form>
+</body>
+
+</html>
